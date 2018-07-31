@@ -31,6 +31,7 @@ const Shell = imports.gi.Shell;
 const MessageTray = imports.ui.messageTray;
 const Atk = imports.gi.Atk;
 const Config = imports.misc.config;
+const Util = imports.misc.util;
 
 const INHIBIT_APPS_KEY = 'inhibit-apps';
 const SHOW_INDICATOR_KEY = 'show-indicator';
@@ -125,6 +126,7 @@ const Caffeine = new Lang.Class({
             style_class: 'system-status-icon'
         });
 
+        Util.spawn(['bash', '-c', "kill $(pgrep -f 'gnome-tweak-tool-lid-inhibitor')"]);
         this._state = false;
         // who has requested the inhibition
         this._last_app = "";
@@ -218,6 +220,7 @@ const Caffeine = new Lang.Class({
                         this._last_app = "";
                         this._last_cookie = "";
                         if (this._state === false) {
+                            Util.spawn(["python", "/usr/lib/gnome-tweak-tool-lid-inhibitor"]);
                             this._state = true;
                             this._icon.icon_name = EnabledIcon;
                             if (this._settings.get_boolean(SHOW_NOTIFICATIONS_KEY) && !this.inFullscreen)
@@ -239,6 +242,7 @@ const Caffeine = new Lang.Class({
             this._cookies.splice(index, 1);
             this._objects.splice(index, 1);
             if (this._apps.length === 0) {
+                Util.spawn(['bash', '-c', "kill $(pgrep -f 'gnome-tweak-tool-lid-inhibitor')"]);
                 this._state = false;
                 this._icon.icon_name = DisabledIcon;
                 if(this._settings.get_boolean(SHOW_NOTIFICATIONS_KEY))
